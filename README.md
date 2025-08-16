@@ -19,14 +19,14 @@ Computes basic variant statistics (SNP/INDEL counts, Ti/Tv), inspects headers, a
 # run on your VCF (.vcf or .vcf.gz)
 python scripts/run_vcf_qc.py --vcf <your_sample>.vcf.gz --out results/qc_summary.csv
 
-
+'''
 
 ### Try it now (with the bundled example)
 
 ```bash
 python scripts/run_vcf_qc.py --vcf examples/demo_sample.vcf.gz --out results/qc_summary.csv
 
-
+'''
 
 ## CSV column definitions (what each field means)
 
