@@ -1,0 +1,2 @@
+file,samples,variants,snps,indels,ti,tv,titv,multiallelic_sites,contigs,info_fields,format_fields,warnings
+demo_sample.vcf.gz,1,3,2,1,2,0,0.0,1,2,1,1,0

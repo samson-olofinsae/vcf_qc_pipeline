@@ -1,0 +1,24 @@
+# --- Personal data (keep local only) ---
+inputs/*
+!inputs/.gitkeep
+
+# --- Generated outputs (keep local only) ---
+outputs/*
+!outputs/.gitkeep
+!outputs/qc_logs/.gitkeep
+!outputs/plots/.gitkeep
+
+# --- Private notes (not shared) ---
+README_PRIVATE.md
+
+# --- Local helper script (optional to ignore) ---
+step3_seed.sh
+
+# --- Python cruft ---
+__pycache__/
+*.pyc
+.venv/
+
+# --- OS cruft ---
+.DS_Store
+Thumbs.db

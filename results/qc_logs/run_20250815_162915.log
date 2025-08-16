@@ -1,0 +1,3 @@
+[2025-08-15 16:29:15] Starting VCF QC on inputs/demo_sample.vcf.gz
+[2025-08-15 16:29:15] Completed. Variants=3 SNPs=2 INDELs=1 Ti/Tv=0.0
+[2025-08-15 16:29:15] Summary appended to results/qc_summary.csv
