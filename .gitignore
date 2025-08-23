@@ -1,24 +1,44 @@
-# --- Personal data (keep local only) ---
+# --- Real data (keep local only) ---
 inputs/*
 !inputs/.gitkeep
 
-# --- Generated outputs (keep local only) ---
 outputs/*
 !outputs/.gitkeep
-!outputs/qc_logs/.gitkeep
-!outputs/plots/.gitkeep
 
-# --- Private notes (not shared) ---
+# --- Demo / generated outputs (keep local only) ---
+results/*
+!results/.gitkeep
+
+# (Optional) If you ever want to commit a tiny demo HTML, un-comment these:
+# !results/multiqc/
+# !results/multiqc/vcf_qc.html
+# !results/multiqc/vcf_qc_data/**
+# !results/multiqc_cc/
+# !results/multiqc_cc/vcf_qc_summary_mqc.tsv
+# !results/multiqc_cc/vcf_qc_summary_gs_mqc.tsv
+
+# --- Private notes ---
 README_PRIVATE.md
 
-# --- Local helper script (optional to ignore) ---
+# --- Local helper (ok to ignore) ---
 step3_seed.sh
+
+# --- MultiQC if someone runs in repo root by mistake ---
+multiqc_report.html
+multiqc_data/
 
 # --- Python cruft ---
 __pycache__/
 *.pyc
 .venv/
+.mypy_cache/
+.pytest_cache/
 
-# --- OS cruft ---
+# --- Jupyter cruft ---
+.ipynb_checkpoints/
+
+# --- Editor / OS cruft ---
+.vscode/
+.idea/
 .DS_Store
 Thumbs.db

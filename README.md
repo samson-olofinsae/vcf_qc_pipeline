@@ -1,76 +1,148 @@
 # VCF QC Pipeline
 
-A minimal **command-line tool** to inspect, summarise, and troubleshoot VCF files.  
-Designed for both **teaching** and **real-world pipeline checks**.
+A minimal, **teaching-friendly** command-line tool to inspect, summarise, and troubleshoot VCF files — now with **one-click MultiQC HTML reports**.
 
 **Key features**
-- Counts SNPs, INDELs, transitions, and transversions  
-- Computes transition/transversion (Ti/Tv) ratio  
-- Checks header integrity (contigs, INFO, FORMAT fields)  
-- Flags malformed rows and multiallelic sites  
-- Outputs results as a clean **CSV summary**  
-- Ships with a **privacy-safe synthetic VCF** for demo use  
+- Counts SNPs, INDELs, transitions, transversions; computes **Ti/Tv**.
+- Checks header integrity (contigs, INFO, FORMAT fields).
+- Flags malformed rows & multiallelic sites.
+- Outputs a clean **CSV summary** for regression checks.
+- **NEW:** Standalone **MultiQC** builder:
+  - Per-sample **table section** (custom content).
+  - Optional **General Statistics** panel (headline KPIs).
+- Ships with a **privacy-safe synthetic VCF** for demo use.
 
 ---
 
 ## Why this matters (for labs and teaching)
 
-- **Pipeline gatekeeper** - catch header/reference mismatches, malformed rows, or odd Ti/Tv ratios *before* running heavy annotation and aggregation.  
-- **Regression checks** - compare CSV outputs across pipeline releases; flag shifts in SNP/INDEL counts or Ti/Tv.  
-- **Teaching tool** - helps students learn VCF anatomy, variant composition, and QC signals.  
-- **Privacy safe** - bundled with `examples/demo_sample.vcf.gz`, a synthetic file with no patient data.  
+- **Pipeline gatekeeper** - catch header/reference mismatches, malformed rows, or odd Ti/Tv *before* heavy annotation/aggregation.
+- **Regression checks** - compare CSVs across releases; flag shifts in SNP/INDEL counts or Ti/Tv.
+- **Teaching tool** - learn VCF anatomy, variant composition, and QC signals.
+- **Privacy safe** - bundled with `examples/demo_sample.vcf.gz`.
+
+---
+
+## Repository layout
+
+```
+.
+├── README.md
+├── docs/
+├── examples/
+│   └── demo_sample.vcf.gz      # demo VCF (bgzipped)
+├── inputs/
+├── results/
+│   ├── qc_logs/                # run logs (from the QC runner)
+│   ├── qc_summary.csv          # CSV summary (from the QC runner)
+│   ├── multiqc_cc/             # MultiQC custom-content tables (generated)
+│   └── multiqc/                # MultiQC HTML + assets (generated)
+├── scripts/
+│   ├── run_vcf_qc.py           # QC runner → writes results/qc_summary.csv
+│   ├── utils.py
+│   ├── plot_af_dp.py           # optional plotting helper
+│   ├── make_vcf_qc_multiqc.sh  # NEW: VCF → MultiQC TSV (+ HTML)
+│   └── report_vcf_qc.sh        # NEW: convenience wrapper for the above
+└── step3_seed.sh
+```
 
 ---
 
 ## Quick Start
 
+### 1) Run QC on a VCF (CSV summary)
 ```bash
-# Run QC on your VCF (.vcf or .vcf.gz)
+# Your own data
 python scripts/run_vcf_qc.py --vcf <your_sample>.vcf.gz --out results/qc_summary.csv
+
+# Try the bundled demo
+python scripts/run_vcf_qc.py --vcf examples/demo_sample.vcf.gz --out results/qc_summary.csv
 ```
 
-### Try it now (with the bundled example)
+### 2) Build the MultiQC report (table + General Statistics)
 
+**Option A — wrapper (auto-detects `examples/` or `results/vcf/`):**
 ```bash
-python scripts/run_vcf_qc.py --vcf examples/demo_sample.vcf.gz --out results/qc_summary.csv
+bash scripts/report_vcf_qc.sh
+# or specify the folder that contains your .vcf.gz files:
+bash scripts/report_vcf_qc.sh examples
+# e.g., for real outputs placed under results/vcf/:
+bash scripts/report_vcf_qc.sh results/vcf
+```
+
+**Option B — direct builder (explicit paths; writes both TSV + HTML):**
+```bash
+# MAKE_GS=1 also emits a numeric-only “General Statistics” TSV
+MAKE_GS=1 scripts/make_vcf_qc_multiqc.sh <VCF_DIR> results/multiqc_cc/vcf_qc_summary_mqc.tsv results/multiqc/vcf_qc.html
+```
+
+**Open the HTML**
+```bash
+# Linux:
+xdg-open results/multiqc/vcf_qc.html
+
+# WSL:
+wslview results/multiqc/vcf_qc.html
+```
+
+Generated files:
+- `results/multiqc_cc/vcf_qc_summary_mqc.tsv` - MultiQC **table** (custom content).
+- `results/multiqc_cc/vcf_qc_summary_gs_mqc.tsv` - **General Statistics** KPIs (numeric-only; written when `MAKE_GS=1`).
+- `results/multiqc/vcf_qc.html` — HTML report (requires `multiqc` installed).
+
+To overwrite an existing HTML:
+```bash
+multiqc results -o results/multiqc -n vcf_qc.html -f
 ```
 
 ---
 
-## CSV column definitions
+## CSV column definitions (from `run_vcf_qc.py`)
 
-- **samples** - number of sample columns in the VCF (after `FORMAT` in the `#CHROM` header). Site-only VCFs will report 0.  
-- **variants** - total number of variant rows parsed. Malformed rows are skipped and counted in `warnings`.  
-- **snps** - rows where REF length = 1 and all ALT alleles are length = 1.  
-- **indels** - rows with at least one ALT allele of different length than REF.  
-- **ti** - number of transition SNPs (A<->G or C<->T).  
-- **tv** - number of transversion SNPs (all other single-base substitutions).  
-- **titv** - ratio = `ti / tv`. If `tv=0`, this pipeline reports `0.0` (configurable).  
-- **multiallelic_sites** - rows with multiple ALT alleles (comma-separated, e.g., `A,T`).  
-- **contigs** - number of `##contig=...` lines declared in the header.  
-- **info_fields** - number of `##INFO=...` field definitions.  
-- **format_fields** - number of `##FORMAT=...` field definitions.  
-- **warnings** - number of malformed rows skipped (e.g., fewer than 8 tab-separated columns).  
+- **samples** - number of sample columns (0 for site-only VCFs).
+- **variants** - total variant rows parsed (malformed rows are skipped and counted in `warnings`).
+- **snps** - REF length = 1 and all ALT alleles length = 1.
+- **indels** - at least one ALT length differs from REF.
+- **ti** - transitions (A↔G, C↔T).
+- **tv** - transversions (other single-base substitutions).
+- **titv** - `ti / tv` (this runner reports `0.0` if `tv=0`).
+- **multiallelic_sites** - rows with multiple ALT alleles (e.g., `A,T`).
+- **contigs / info_fields / format_fields** - header counts.
+- **warnings** - malformed rows skipped.
+
+---
+
+## MultiQC table (what it shows, per sample)
+
+**Section:** *VCF QC - variant summary*  
+Columns produced by `make_vcf_qc_multiqc.sh` (via `bcftools`):
+
+- **total_vars** - total variant records.
+- **snvs / indels** - counts by class.
+- **pass_rate** - PASS / total (`bcftools view -f PASS`).
+- **titv** - transitions/transversions (`bcftools stats`).
+- **het_hom** - heterozygous : homozygous genotype ratio (`bcftools stats`); blank if hom=0 or no GTs.
+- **med_DP**, **med_QUAL** - medians from `bcftools query` (may be blank if tags absent).
+- **multi_allelic_pct** - % of sites that are **not** biallelic (computed with `-m2 -M2`).
+- **filtered_pct** - % non-PASS = `100 × (1 − pass_rate)`.
+
+> Sample names are inferred from filenames; the builder strips common suffixes like `_final_variants`, `_variants`, `.filtered`, `.hardfiltered` for readability.
 
 ---
 
 ## Quick interpretation tips
 
 - **Ti/Tv ratio**:  
-  - Germline WGS - ~2.0 to 2.2  
-  - Exome/targeted - ~2.6 to 3.3  
-  - Somatic/tumour callsets - often lower or more variable  
-  A Ti/Tv much lower than expected suggests technical artefacts or overly permissive filtering.  
-
-- **warnings > 0** - indicates malformed rows. Use bcftools to validate.  
-- **multiallelic_sites** - normal in many datasets but some tools require splitting.  
+  Germline WGS ≈ 2.0–2.2 • Exome/targeted ≈ 2.6–3.3 • Somatic often lower/more variable.  
+  Much lower than expected can indicate technical artefacts or permissive filtering.
+- **warnings > 0** (CSV) - malformed rows → validate with `bcftools`.
+- **multiallelic_sites** - normal; some tools require splitting beforehand.
 
 ---
 
 ## Example output (demo file)
 
-Running `demo_sample.vcf.gz` produces:
-
+Running `examples/demo_sample.vcf.gz` yields (CSV excerpt):
 ```
 samples=1
 variants=3
@@ -85,67 +157,36 @@ info_fields=1
 format_fields=1
 warnings=0
 ```
+The MultiQC report summarises the same VCF with:
+- `total_vars=3`, `snvs=2`, `indels=1`
+- `pass_rate=1.0`, `filtered_pct=0.0`
+- `titv=2.0`
+- `het_hom` blank (no hom calls / no GTs)
+- `med_DP≈20`, `med_QUAL='.'` if QUAL absent
+- `multi_allelic_pct≈33.3%` (1/3 records multiallelic)
 
 ---
 
-## Real-world applications
+## Requirements
 
-This tool provides **fast health signals** for VCF files. Use cases include:
-
-- **Gatekeeping before annotation**  
-  Stop early if headers do not match reference, Ti/Tv is unrealistic, or warnings > 0.  
-
-- **Regression testing**  
-  Keep a small golden dataset. After pipeline updates, compare new QC metrics to expected values. Flag large deviations (for example, ±20 percent in variant counts).  
-
-- **Outlier detection across cohorts**  
-  Aggregate CSVs across samples and plot distributions. Outliers in `variants`, `titv`, or SNP:INDEL ratios may indicate contamination or sample swaps.  
-
-- **Reference build hygiene**  
-  If contigs=0 or contigs do not match, fix headers or rename chromosomes before downstream tools.  
-  - Rename chromosomes:  
-    ```bash
-    bcftools annotate --rename-chrs mapping.txt in.vcf.gz -Oz -o out.vcf.gz
-    ```  
-  - Normalise REF/ALT against FASTA:  
-    ```bash
-    bcftools norm -f ref.fa -Oz -o out.vcf.gz
-    ```  
-
-- **Pre-normalisation decisions**  
-  Many multiallelic sites? Split to biallelic before annotation:  
-  ```bash
-  bcftools norm -m -any in.vcf.gz -Oz -o out.vcf.gz
-  ```  
+- **bcftools** ≥ 1.10 (`view`, `query`, `stats`)
+- **Python** 3.8+ (for the runner)
+- *(Optional)* **MultiQC** for HTML: `pip install multiqc` (or `mamba/conda install -c bioconda multiqc`)
 
 ---
 
-## Limitations (by design)
+## Troubleshooting
 
-This QC tool is intentionally lightweight. It does **not** compute:  
-- Depth or allele-balance histograms  
-- Hardy-Weinberg equilibrium  
-- Relatedness or ancestry metrics  
-
-For deeper QC use alongside:  
-- `bcftools stats` (+ `plot-vcfstats`)  
-- `peddy` for ancestry, sex, relatedness  
-- Caller-specific metrics (for example, GATK/Picard `CollectVariantCallingMetrics`)  
-
-> Rule of thumb: **Consistency beats absolutes**. Baseline your QC metrics on a known-good run, then flag unexpected drift.  
+- **“bcftools not found”** → install and ensure it’s on `PATH`.
+- **“No .vcf.gz files found”** → pass the correct folder (`examples/` for demo, or `results/vcf/` for real outputs).
+- **Blank `het_hom`** → no homozygous genotypes or no GT fields.
+- **`.` in `med_QUAL`** → QUAL absent in VCF (not an error).
+- **HTML won’t open in image viewers** → use a browser (`xdg-open`, `wslview`).
 
 ---
 
-## Citation
-
-If you use or adapt this tool in teaching or pipelines, please cite:  
-**Samson Olofinsae. VCF QC Pipeline. GitHub 2025.**  
-<https://github.com/samson-olofinsae/vcf_qc_pipeline>
-
----
+## License
+MIT - © 2025 Samson Olofinsae.
 
 ## Contact
-
-Questions or suggestions?  
-- Open an issue on GitHub  
-- Connect via [GitHub profile](https://github.com/samson-olofinsae)  
+Open an issue on GitHub or connect via your GitHub profile.
