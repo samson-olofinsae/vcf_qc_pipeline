@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "VCF QC Pipeline"
+abstract: "Lightweight VCF QC tool that emits CSV metrics (Ti/Tv, SNP/INDEL, header integrity) and a MultiQC HTML report for at-a-glance review. Ideal for pipeline gatekeeping and onboarding."
+authors:
+  - family-names: Olofinsae
+    given-names: Samson
+license: MIT
+repository-code: "https://github.com/samson-olofinsae/vcf_qc_pipeline"
+url: "https://github.com/samson-olofinsae/vcf_qc_pipeline"
+version: "v0.1.0"
+date-released: "2025-08-23"
+keywords:
+  - vcf
+  - qc
+  - bcftools
+  - multiqc
+  - bioinformatics
+  - training
+
+preferred-citation:
+  type: software
+  title: "VCF QC Pipeline"
+  authors:
+    - family-names: Olofinsae
+      given-names: Samson
+  version: "v0.1.0"
+  date-released: "2025-08-23"
+  url: "https://github.com/samson-olofinsae/vcf_qc_pipeline"
+ 
