@@ -189,4 +189,7 @@ The MultiQC report summarises the same VCF with:
 MIT - © 2025 Samson Olofinsae.
 
 ## Contact
-Open an issue on GitHub or connect via your GitHub profile.
+- Issues: [Report a bug or request a feature](https://github.com/samson-olofinsae/vcf_qc_pipeline/issues)
+- Maintainer: https://github.com/samson-olofinsae
+- Email: olofinsae.samson@gmail.com
+
