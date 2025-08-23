@@ -1,6 +1,6 @@
 # VCF QC Pipeline
 
-A minimal, **teaching-friendly** command-line tool to inspect, summarise, and troubleshoot VCF files — now with **one-click MultiQC HTML reports**.
+A minimal, **teaching-friendly** command-line tool to inspect, summarise, and troubleshoot VCF files - now with **one-click MultiQC HTML reports**.
 
 **Key features**
 - Counts SNPs, INDELs, transitions, transversions; computes **Ti/Tv**.
