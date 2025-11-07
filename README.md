@@ -50,6 +50,16 @@ A minimal, **teaching-friendly** command-line tool to inspect, summarise, and tr
 
 ## Quick Start
 
+## Setup
+
+### Clone the repository
+
+```bash
+git clone https://github.com/samson-olofinsae/vcf_qc_pipeline.git
+cd vcf_qc_pipeline
+```
+
+
 ### 1) Run QC on a VCF (CSV summary)
 ```bash
 # Your own data
