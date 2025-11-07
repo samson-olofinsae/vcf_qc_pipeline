@@ -63,10 +63,10 @@ cd vcf_qc_pipeline
 ### 1) Run QC on a VCF (CSV summary)
 ```bash
 # Your own data
-python scripts/run_vcf_qc.py --vcf <your_sample>.vcf.gz --out results/qc_summary.csv
+python3 scripts/run_vcf_qc.py --vcf <your_sample>.vcf.gz --out results/qc_summary.csv
 
 # Try the bundled demo
-python scripts/run_vcf_qc.py --vcf examples/demo_sample.vcf.gz --out results/qc_summary.csv
+python3 scripts/run_vcf_qc.py --vcf examples/demo_sample.vcf.gz --out results/qc_summary.csv
 ```
 
 ### 2) Build the MultiQC report (table + General Statistics)
